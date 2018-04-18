@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Ted Talks</title>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+  </head>
+  <body>
+  	<p id="title">TED Talks</p>
+  	<div id="tabs" >
+  	  <ul>
+        <li><a href="home.html">Home</a></li>
+  	    <li><a class="active" href="LanguageAnalysis.html">Language Analysis</a></li>
+   		<li><a href="DurationByEvent.html">Duration by Event</a></li>
+  		<li><a href="OnlineActivity.html">Online Activity</a></li>
+	  </ul>
+  	</div>
+  	<!--Langauge vs. Views-->
+  	<div id="Langtop">
+  		<select id="inds">
+			<option value="TED2012" selected="selected">TED2012</option>
+			<option value="TED2013">TED2013</option>
+			<option value="TED2014">TED2014</option>
+			<option value="TED2015">TED2015</option>
+			<option value="TED2016">TED2016</option>
+			<option value="TED2017">TED2017</option>
+		</select>
+  	</div>
+
+
+  	<hr> <!--Horizontal line-->
+
+  	<!--6 bar plots -->
+
+	<div id="topL" class = "l">
+	  <h3>Bar Plot </h3>
+	</div>
+
+	<div id="topM" class = "b">
+	  <h3>Bar Plot </h3>
+	</div>
+
+	<div id="topR" class = "b">
+	  <h3>Bar Plot </h3>
+	</div>
+
+	<div id="bottomL" class = "l">
+	  <h3>Bar Plot </h3>
+	</div>
+
+	<div id="bottomM" class = "b">
+	  <h3>Bar Plot </h3>
+	</div>
+
+	<div id="bottomR" class = "b">
+	  <h3>Bar Plot </h3>
+	</div>
+
+	<hr> <!--Horizontal line-->
+
+	<!--Langauge vs. Dates-->
+  	<div id="LangBottom">
+  	  <h3>Scatter Plot </h3>
+  	  <p>Language vs. Views</p>
+  	</div>
+
+    <p id="footer"> <strong>Author:</strong> Amy Pitts, Kaitlyn Mulligan <strong>Course:</strong> DATA-300-111L, <strong>Sources:</strong> Kaggle, <em>TED Talk dataset</em> </p>
+
+	<script>
+	  function cleanup(data) {
+	    data.forEach(function(obj) {
+             obj.languages = parseInt(obj.languages);
+             obj.views = parseInt(obj.views);
+        });
+        return data;
+	  }
+    function grabTED(data, event) {
+      var ted = [];
+      var i = 0;
+      data.forEach(function(obj) {
+             if(obj.event == event) {
+               ted[i] = obj;
+               i++;
+             }
+        });
+        return ted;
+	  }
+// 	  d3.csv("ted_main.csv",
+//         function(error, raw_data) {
+//           var data = cleanup(raw_data);
+//           var ted = grabTED(data, "TED2012");
+// 
+//           //scatterplot("Languages vs Views" , data);
+//           scatterplot("TED2012" , ted);
+// 
+//       });
+      d3.select('#inds')
+      	.on("change", function () {
+      		var sect = document.getElementById("inds");
+			var section = sect.options[sect.selectedIndex].value;
+			console.log(section);
+			d3.csv("ted_main.csv",
+        		function(error, raw_data) {
+          		var data = cleanup(raw_data);
+          		var ted = grabTED(data, section);
+
+          		//scatterplot("Languages vs Views" , data);
+          		scatterplot(section, ted);
+      		});
+      	//updateGraph(data);
+	 });
+	 function updateGraph(data) {
+
+      	}
+	 
+      function scatterplot(title,data) {
+        	//Width and height
+    		var w = 800;
+    		var h = 400;
+    		var padding = 90;
+
+    		var dataset = data;
+
+    		//Create scale functions
+    		var xScale = d3.scaleLinear()
+    							 .domain([0, d3.max(dataset, function(d) { return d.languages; })])
+    							 .range([padding, w - padding * 2]);
+
+    		var yScale = d3.scaleLinear()
+    							 .domain([0, d3.max(dataset, function(d) { return d.views; })])
+    							 .range([h - padding, padding]);
+
+    		var aScale = d3.scaleSqrt()
+    							 .domain([0, d3.max(dataset, function(d) { return d.views; })])
+    							 .range([3, 3]);
+
+    		//Define X axis
+    		var xAxis = d3.axisBottom()
+    						  .scale(xScale)
+    						  .ticks(10);
+
+    		//Define Y axis
+    		var yAxis = d3.axisLeft()
+    						  .scale(yScale)
+    						  .ticks(5);
+
+    		//Create SVG element
+    		var svg = d3.select("#Langtop")
+    					.append("svg")
+    					.attr("width", w)
+    					.attr("height", h);
+
+    		//Create circles
+    		svg.selectAll("circle")
+    		   .data(dataset)
+    		   .enter()
+    		   .append("circle")
+    		   .attr("cx", function(d) {
+    		   		return xScale(d.languages);
+    		   })
+    		   .attr("cy", function(d) {
+    		   		return yScale(d.views);
+    		   })
+    		   .attr("r", function(d) {
+    		   		return aScale(d.views);
+    		   });
+
+    		//Create labels
+    		svg.selectAll("text")
+    		   .data(dataset)
+    		   .enter()
+    		   .append("text")
+    		   // .text(function(d) {
+    // 			   		return d.languages + "," + d.views;
+    // 			   })
+    		   .attr("x", function(d) {
+    		   		return xScale(d.languages);
+    		   })
+    		   .attr("y", function(d) {
+    		   		return yScale(d.views);
+    		   })
+    		   .attr("font-family", "sans-serif")
+    		   .attr("font-size", "11px")
+    		   .attr("fill", "red");
+
+    		//Create X axis
+    		svg.append("g")
+    			.attr("class", "axis")
+    			.attr("transform", "translate(0," + (h - padding) + ")")
+    			.call(xAxis);
+
+    		//Create Y axis
+    		svg.append("g")
+    			.attr("class", "axis")
+    			.attr("transform", "translate(" + padding + ",0)")
+    			.call(yAxis);
+      }
+      function scatterplot2(title,data) {
+          //Width and height
+        var w = 800;
+        var h = 400;
+        var padding = 90;
+
+        var dataset = data;
+
+        //Create scale functions
+        var xScale = d3.scaleLinear()
+                   .domain([0, d3.max(dataset, function(d) { return d.languages; })])
+                   .range([padding, w - padding * 2]);
+
+        var yScale = d3.scaleLinear()
+                   .domain([0, d3.max(dataset, function(d) { return d.views; })])
+                   .range([h - padding, padding]);
+
+        var aScale = d3.scaleSqrt()
+                   .domain([0, d3.max(dataset, function(d) { return d.views; })])
+                   .range([3, 3]);
+        console.log(d3.max(dataset, function(d) { return d.languages; }));
+
+        //Define X axis
+        var xAxis = d3.axisBottom()
+                  .scale(xScale)
+                  .ticks(10);
+
+        //Define Y axis
+        var yAxis = d3.axisLeft()
+                  .scale(yScale)
+                  .ticks(5);
+
+        //Create SVG element
+        var svg = d3.select("#LangBottom")
+              .append("svg")
+              .attr("width", w)
+              .attr("height", h);
+
+        //Create circles
+        svg.selectAll("circle")
+           .data(dataset)
+           .enter()
+           .append("circle")
+           .attr("cx", function(d) {
+              return xScale(d.languages);
+           })
+           .attr("cy", function(d) {
+              return yScale(d.views);
+           })
+           .attr("r", function(d) {
+              return aScale(d.views);
+           });
+
+        //Create labels
+        svg.selectAll("text")
+           .data(dataset)
+           .enter()
+           .append("text")
+           // .text(function(d) {
+    // 			   		return d.languages + "," + d.views;
+    // 			   })
+           .attr("x", function(d) {
+              return xScale(d.languages);
+           })
+           .attr("y", function(d) {
+              return yScale(d.views);
+           })
+           .attr("font-family", "sans-serif")
+           .attr("font-size", "11px")
+           .attr("fill", "red");
+
+        //Create X axis
+        svg.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(0," + (h - padding) + ")")
+          .call(xAxis);
+
+        //Create Y axis
+        svg.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(" + padding + ",0)")
+          .call(yAxis);
+      }
+	</script>
+  </body>
+</html>
