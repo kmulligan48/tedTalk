@@ -18,7 +18,7 @@
   	</div>
   	<!--Langauge vs. Views-->
   	<div id="Langtop">
-  		<select id="inds">
+  		<select id="inds"> <!-- onchange="change.call(this, data)" -->
 			<option value="TED2012" selected="selected">TED2012</option>
 			<option value="TED2013">TED2013</option>
 			<option value="TED2014">TED2014</option>
@@ -72,10 +72,12 @@
 	    data.forEach(function(obj) {
              obj.languages = parseInt(obj.languages);
              obj.views = parseInt(obj.views);
+             
         });
         return data;
 	  }
     function grabTED(data, event) {
+	  console.log(data);
       var ted = [];
       var i = 0;
       data.forEach(function(obj) {
@@ -113,17 +115,23 @@
 
       });
 
+	 // function change(event, data) {
+	 // grabTED(data,event);
       d3.select('#inds')
       	.on("change", function () {
       		var sect = document.getElementById("inds");
 			var section = sect.options[sect.selectedIndex].value;
 			console.log(section);
-			d3.selectAll("circle")
+			
+			// use d3.select to find the svg element again
+			//var svg = d3.select("#Langtop svg");
+			
+			svg.selectAll("circle")
 				.remove()
 				.exit();
- 			d3.selectAll("circle")
-				//.data( grabTED(svg.data, section) )
-				.data(grabTED(data, event))
+ 			svg.selectAll("circle")
+				.data( grabTED(svg.dataset, section) )
+				//.data(grabTED(data, event))
  				.enter()
 			   	.append("circle")
 			   	.attr("cx", function(d) {
@@ -136,6 +144,7 @@
 				  	return aScale(d.views);
 			   	});
 			   	});
+			   //	}
  				
 //           		//scatterplot("Languages vs Views" , data);
 //           		scatterplot(section, ted); // maybe don't call scatterplot, because not need to build whole chart again
@@ -154,15 +163,17 @@
     		var dataset = data;
 
     		//Create scale functions
-    		var xScale = d3.scaleLinear()
-    							 .domain([0, d3.max(dataset, function(d) { return d.languages; })])
+    		 xScale = d3.scaleLinear()
+    							 // .domain([0, d3.max(dataset, function(d) { return d.languages; })])
+    							 .domain([0, 60])
     							 .range([padding, w - padding * 2]);
 
-    		var yScale = d3.scaleLinear()
-    							 .domain([0, d3.max(dataset, function(d) { return d.views; })])
+    		 yScale = d3.scaleLinear()
+    							 //.domain([0, d3.max(dataset, function(d) { return d.views; })])
+    							 .domain([0, 25000000])
     							 .range([h - padding, padding]);
 
-    		var aScale = d3.scaleSqrt()
+    		 aScale = d3.scaleSqrt()
     							 .domain([0, d3.max(dataset, function(d) { return d.views; })])
     							 .range([3, 3]);
 
@@ -177,16 +188,16 @@
     						  .ticks(5);
 
     		//Create SVG element
-    		var svg = d3.select("#Langtop")
+    		svg = d3.select("#Langtop")
     					.append("svg")
     					.attr("width", w)
     					.attr("height", h);
 
-			svg.data = dataset;
+			svg.dataset = data;
 
     		//Create circles
     		svg.selectAll("circle")
-    		   .data(grabTED(svg.data, section))
+    		   .data(grabTED(svg.dataset, section))
     		   .enter()
     		   .append("circle")
     		   .attr("cx", function(d) {
