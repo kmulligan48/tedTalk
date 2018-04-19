@@ -86,6 +86,22 @@
         });
         return ted;
 	  }
+	  function change(event){
+	  	if(event === "TED2012"){
+			scatterplot(event);
+		}else if(event === "TED2013"){
+			scatterplot(event);
+		}else if(event === "TED2014"){
+			scatterplot(event);
+		} else if(event === "TED2015"){
+			scatterplot(event);
+		} else if(event === "TED2016"){
+			scaterplot(event);
+		} else if(event === "TED2017"){
+			scatterplot(event);
+		}
+	  }	
+	  
 // 	  d3.csv("ted_main.csv",
 //         function(error, raw_data) {
 //           var data = cleanup(raw_data);
@@ -104,15 +120,29 @@
         		function(error, raw_data) {
           		var data = cleanup(raw_data);
           		var ted = grabTED(data, section);
-
+			d3.selectAll("circle")
+				.remove()
+				.exit();
+				//.add();
+				//.data(ted);
+			d3.selectAll("circle")
+				.enter(ted);
           		//scatterplot("Languages vs Views" , data);
           		scatterplot(section, ted);
       		});
+      					//Change data sets
+// 			d3.selectAll("circle")
+// 				.remove()
+// 				.exit();
+// 				//.add();
+// 				//.data(ted);
+// 			d3.selectAll("circle")
+// 			.enter();
       	//updateGraph(data);
 	 });
-	 function updateGraph(data) {
-
-      	}
+// 	 function updateGraph(data) {
+// 
+//       	}
 	 
       function scatterplot(title,data) {
         	//Width and height
@@ -150,6 +180,12 @@
     					.append("svg")
     					.attr("width", w)
     					.attr("height", h);
+
+// 			Change data sets
+// 			svg.selectAll("circle")
+// 					.remove()
+// 					.exit()
+// 					.data(dataset);
 
     		//Create circles
     		svg.selectAll("circle")
@@ -196,6 +232,7 @@
     			.attr("transform", "translate(" + padding + ",0)")
     			.call(yAxis);
       }
+      
       function scatterplot2(title,data) {
           //Width and height
         var w = 800;
