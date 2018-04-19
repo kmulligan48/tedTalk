@@ -86,65 +86,66 @@
         });
         return ted;
 	  }
-	  function change(event){
-	  	if(event === "TED2012"){
-			scatterplot(event);
-		}else if(event === "TED2013"){
-			scatterplot(event);
-		}else if(event === "TED2014"){
-			scatterplot(event);
-		} else if(event === "TED2015"){
-			scatterplot(event);
-		} else if(event === "TED2016"){
-			scaterplot(event);
-		} else if(event === "TED2017"){
-			scatterplot(event);
-		}
-	  }	
+// 	  function change(event){
+// 	  	if(event === "TED2012"){
+// 			scatterplot(event);
+// 		}else if(event === "TED2013"){
+// 			scatterplot(event);
+// 		}else if(event === "TED2014"){
+// 			scatterplot(event);
+// 		} else if(event === "TED2015"){
+// 			scatterplot(event);
+// 		} else if(event === "TED2016"){
+// 			scaterplot(event);
+// 		} else if(event === "TED2017"){
+// 			scatterplot(event);
+// 		}
+// 	  }	
 	  
-// 	  d3.csv("ted_main.csv",
-//         function(error, raw_data) {
-//           var data = cleanup(raw_data);
-//           var ted = grabTED(data, "TED2012");
-// 
-//           //scatterplot("Languages vs Views" , data);
-//           scatterplot("TED2012" , ted);
-// 
-//       });
+	  d3.csv("ted_main.csv",
+        function(error, raw_data) {
+          var data = cleanup(raw_data);
+          //var ted = grabTED(data, "TED2012");
+
+          //scatterplot("Languages vs Views" , data);
+          //scatterplot("TED2012" , ted);
+          scatterplot("TED2012" , data);
+
+      });
+
       d3.select('#inds')
       	.on("change", function () {
       		var sect = document.getElementById("inds");
 			var section = sect.options[sect.selectedIndex].value;
 			console.log(section);
-			d3.csv("ted_main.csv",
-        		function(error, raw_data) {
-          		var data = cleanup(raw_data);
-          		var ted = grabTED(data, section);
 			d3.selectAll("circle")
 				.remove()
 				.exit();
-				//.add();
-				//.data(ted);
-			d3.selectAll("circle")
-				.enter();
-          		//scatterplot("Languages vs Views" , data);
-          		scatterplot(section, ted);
-      		});
-      					//Change data sets
-// 			d3.selectAll("circle")
-// 				.remove()
-// 				.exit();
-// 				//.add();
-// 				//.data(ted);
-// 			d3.selectAll("circle")
-// 			.enter();
-      	//updateGraph(data);
-	 });
-// 	 function updateGraph(data) {
-// 
-//       	}
+ 			d3.selectAll("circle")
+				//.data( grabTED(svg.data, section) )
+				.data(grabTED(data, event))
+ 				.enter()
+			   	.append("circle")
+			   	.attr("cx", function(d) {
+					return xScale(d.languages);
+			   	})
+			   	.attr("cy", function(d) {
+				  	return yScale(d.views);
+			   	})
+			   	.attr("r", function(d) {
+				  	return aScale(d.views);
+			   	});
+			   	});
+ 				
+//           		//scatterplot("Languages vs Views" , data);
+//           		scatterplot(section, ted); // maybe don't call scatterplot, because not need to build whole chart again
+					// instead, just make new circles with attributes, cx, cy, r, based on the new data section
+//       		});
+
+//	 });
+
 	 
-      function scatterplot(title,data) {
+      function scatterplot(section, data) {
         	//Width and height
     		var w = 800;
     		var h = 400;
@@ -181,9 +182,11 @@
     					.attr("width", w)
     					.attr("height", h);
 
+			svg.data = dataset;
+
     		//Create circles
     		svg.selectAll("circle")
-    		   .data(dataset)
+    		   .data(grabTED(svg.data, section))
     		   .enter()
     		   .append("circle")
     		   .attr("cx", function(d) {
